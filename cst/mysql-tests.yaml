@@ -1,0 +1,45 @@
+schemaVersion: "2.0.0"
+
+globalEnvVars:
+   - key: "MYSQL_USER"
+     value: "dev"
+   - key: "MYSQL_PASSWORD"
+     value: "123456"
+
+commandTests:
+
+# Is the MySQL package installed?
+   - name: "MySQL package installed"
+     command: "rpm"
+     args: ["-q", "mysql-community-server-minimal"]
+     expectedOutput: ["mysql-community-server-minimal*"]
+
+fileExistenceTests:
+
+# Does the MySQL client exist in the container?
+   - name: "mysql client exists"
+     path: '/usr/bin/mysql'
+     shouldExist: true
+
+# Does the MySQL configuration file exist at the right place?
+   - name: "my.cnf exists and has appropriate permissions"
+     path: '/etc/my.cnf'
+     shouldExist: true
+     permissions: '-rw-r--r--'
+
+fileContentTests:
+
+# Does the configuration file my.conf have the correct content?
+   - name: 'Content of my.cnf'
+     path: '/etc/my.cnf'
+     expectedContents: ["datadir=/var/lib/mysql\n"]
+
+metadataTest:
+   env:
+   - key: "PATH"
+     value: "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+   exposedPorts: ["3306", "33060"]
+#   volumes: ["/test"]
+   entrypoint: [/entrypoint.sh]
+   cmd: ["mysqld"]
+
